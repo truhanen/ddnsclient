@@ -3,7 +3,7 @@
 import logging
 import time
 import re
-from typing import NamedTuple
+from typing import NamedTuple, List
 from argparse import ArgumentParser, FileType, RawTextHelpFormatter
 from pathlib import Path
 from configparser import ConfigParser
@@ -94,7 +94,7 @@ class Domain(NamedTuple):
 
 
 class Updater:
-    def __init__(self, domains):
+    def __init__(self, domains: List[Domain]):
         self.domains = domains
 
     def run(self, dry_run: bool = False):
