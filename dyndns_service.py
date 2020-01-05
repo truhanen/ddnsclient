@@ -34,7 +34,8 @@ def get_current_ip() -> str:
     return ip
 
 
-def request_namecheap_dyndns_update(*, host: str, domain: str, password: str, ip: str):
+def request_namecheap_dyndns_update(*, host: str, domain: str, password: str,
+                                    ip: str, dry_run: bool = False):
     # The URL of the dynamic DNS service by Namecheap
     dyndns_url = 'https://dynamicdns.park-your-domain.com/update'
 
@@ -46,18 +47,22 @@ def request_namecheap_dyndns_update(*, host: str, domain: str, password: str, ip
 
     logger.info(f'Updating {host}.{domain} with {ip}')
 
-    response = requests.get(url)
+    if not dry_run:
+        response = requests.get(url)
 
-    if response.status_code != 200:
-        error = UpdateError(f'Update failed with error status {response.status}')
-        logger.error(str(error))
-        raise error
+        if response.status_code != 200:
+            error = UpdateError(f'Update failed with error status {response.status}')
+            logger.error(str(error))
+            raise error
 
-    errors = bs4.BeautifulSoup(response.content, 'xml').find('errors')
-    if errors:
-        error = UpdateError(f'Update failed with error {errors}')
-        logger.error(str(error))
-        raise error
+        errors = bs4.BeautifulSoup(response.content, 'xml').find('errors')
+        if errors:
+            error = UpdateError(f'Update failed with error {errors}')
+            logger.error(str(error))
+            raise error
+    else:
+        logger.info(f'Dry-run \'request_namecheap_dyndns_update(...)\'. '
+                    'Nothing was really updated.')
 
 
 class Domain(NamedTuple):
@@ -84,13 +89,9 @@ class Domain(NamedTuple):
     def update(self, current_ip, dry_run : bool = False):
         subdomains = [s.strip() for s in self.subdomains.split(',')]
         for subdomain in subdomains:
-            if not dry_run:
-                request_namecheap_dyndns_update(
-                    host=subdomain, domain=self.name, password=self.password,
-                    ip=current_ip)
-            else:
-                logger.info(f'Dry-run \'request_namecheap_dyndns_update(...)\'. '
-                            'Nothing was really updated.')
+            request_namecheap_dyndns_update(
+                host=subdomain, domain=self.name, password=self.password,
+                ip=current_ip, dry_run=dry_run)
 
 
 class Updater:
