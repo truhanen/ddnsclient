@@ -69,6 +69,7 @@ class Domain(NamedTuple):
     name: str
     password: str
     subdomains: str
+    last_ip: str
 
     @classmethod
     def read_from_file(cls, path):
@@ -79,8 +80,10 @@ class Domain(NamedTuple):
         try:
             for domain_name in config.sections():
                 values = config[domain_name]
+                last_ip = values['lastip'] if 'lastip' in values else None
                 domains.append(Domain(
-                    domain_name, values['password'], values['subdomains']))
+                    domain_name, values['password'], values['subdomains'],
+                    last_ip))
         except Exception:
             raise RuntimeError(f'Error reading domain info from {path}.')
 
@@ -93,17 +96,27 @@ class Domain(NamedTuple):
                 host=subdomain, domain=self.name, password=self.password,
                 ip=current_ip, dry_run=dry_run)
 
+    def update_last(self, dry_run : bool = False):
+        if self.last_ip:
+            self.update(self.last_ip, dry_run=dry_run)
+
 
 class Updater:
-    def __init__(self, domains: List[Domain]):
+    def __init__(self, domains: List[Domain], dry_run: bool = False):
         self.domains = domains
+        self.dry_run = dry_run
 
-    def run(self, dry_run: bool = False):
+    def run(self):
         """Update dynamic IP's to the DNS in an infinite loop."""
+        try:
+            self._run_update_loop()
+        except KeyboardInterrupt:
+            self._set_last_ip()
+
+    def _run_update_loop(self):
         previous_ip = None
 
         while True:
-            # Check current IP.
             try:
                 current_ip = get_current_ip()
             except Exception as e:
@@ -124,7 +137,7 @@ class Updater:
 
             try:
                 for domain in self.domains:
-                    domain.update(current_ip, dry_run=dry_run)
+                    domain.update(current_ip, dry_run=self.dry_run)
             except Exception as e:
                 logger.exception(f'Updating failed due to {e}. '
                                  'Trying updating again after 1 minute.')
@@ -137,6 +150,19 @@ class Updater:
             logger.info('Sleeping for 5 minutes.')
             time.sleep(300)
 
+    def _set_last_ip(self):
+        while True:
+            try:
+                for domain in self.domains:
+                    domain.update_last(dry_run=self.dry_run)
+                break
+            except Exception as e:
+                logger.exception(f'Updating failed due to {e}. '
+                                 'Trying updating again after 1 minute.')
+                time.sleep(60)
+                continue
+
+
 
 def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
@@ -145,9 +171,11 @@ def main():
         help=('The file that lists the credentials and the domains to update. '
               'The file must be readable by configparser.ConfigParser,'
               'and contain sections of the form\n \n'
-              '[mydomain.com]\npassword = password\nsubdomains = subdomains\n \n'
+              '[mydomain.com]\npassword = mypassword\nsubdomains = mysubdomains\n'
+              'lastip = mylastip\n'
               'where subdomains is a comma separated '
-              'list of subdomain names.'))
+              'list of subdomain names. The value of lastip is requested '
+              'to be set when the service is interrupted with SIGINT.'))
     parser.add_argument('-d', '--dry-run', action='store_true', dest='dry',
                         help='Dry-run. Don\'t really request any IP updates, only check.')
 
@@ -156,8 +184,8 @@ def main():
     domain_path = Path(args.domain_path.name)
 
     domains = Domain.read_from_file(domain_path)
-    updater = Updater(domains)
-    updater.run(dry_run=dry_run)
+    updater = Updater(domains, dry_run=dry_run)
+    updater.run()
 
 
 if __name__ == '__main__':
