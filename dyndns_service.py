@@ -120,34 +120,33 @@ class Updater:
             try:
                 current_ip = get_current_ip()
             except Exception as e:
-                logger.exception(f'Current IP checking failed due to {e}. '
-                                 'Trying again in a minute.')
+                logger.exception(
+                    f'Checking failed due to {e}. Trying again in a minute.')
                 time.sleep(60)
                 continue
 
-            logger.debug(f'Current IP now checked: {current_ip}')
+            logger.debug(f'Current IP is {current_ip}')
 
             if previous_ip == current_ip:
-                logger.debug('IP not changed. Checking again after 1 minute.')
+                logger.debug('IP not changed. Checking again after a minute.')
                 time.sleep(60)
                 continue
 
             logger.info(
-                f'IP changed from {previous_ip} to {current_ip}. Updating DNS\'s.')
+                f'IP changed from {previous_ip} to {current_ip}. Updating it to DNS.')
 
             try:
                 for domain in self.domains:
                     domain.update(current_ip, dry_run=self.dry_run)
             except Exception as e:
-                logger.exception(f'Updating failed due to {e}. '
-                                 'Trying updating again after 1 minute.')
+                logger.exception(
+                    f'Updating failed due to {e}. Trying again in a minute.')
                 time.sleep(60)
                 continue
 
             previous_ip = current_ip
 
-            # If the IP was changed, wait longer than 1 minute.
-            logger.info('Sleeping for 5 minutes.')
+            logger.info('Checking again after 5 minutes.')
             time.sleep(300)
 
     def _set_last_ip(self):
