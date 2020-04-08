@@ -166,14 +166,14 @@ def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument(
         'domain_path', type=FileType('r'),
-        help=('The file that lists the credentials and the domains to update. '
-              'The file must be readable by configparser.ConfigParser,'
+        help=('The file that lists the credentials and the domains to update.\n'
+              'The file must be readable by configparser.ConfigParser,\n'
               'and contain sections of the form\n \n'
               '[mydomain.com]\npassword = mypassword\nsubdomains = mysubdomains\n'
-              'lastip = mylastip\n'
-              'where subdomains is a comma separated '
-              'list of subdomain names. The value of lastip is requested '
-              'to be set when the service is interrupted with SIGINT.'))
+              'lastip = mylastip\n \n'
+              'where subdomains is a comma separated list of subdomain names.\n'
+              'The value of lastip is requested to be set when the service is\n'
+              'interrupted with SIGINT.'))
     parser.add_argument('-d', '--dry-run', action='store_true', dest='dry',
                         help='Dry-run. Don\'t really request any IP updates, only check.')
 
