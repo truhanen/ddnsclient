@@ -162,7 +162,6 @@ class Updater:
                 continue
 
 
-
 def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument(
