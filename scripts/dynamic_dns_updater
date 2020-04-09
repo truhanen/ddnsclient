@@ -3,7 +3,7 @@
 from argparse import ArgumentParser, FileType, RawTextHelpFormatter
 from pathlib import Path
 
-from dynamic_dns_updater import Domain, Updater
+from truhanen.ddnsclient import Domain, Updater
 
 
 def main():

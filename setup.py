@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(
-    name='dynamic-dns-updater',
+    name='truhanen.ddnsclient',
     version='0.1.0',
     author='Tuukka Ruhanen',
     author_email='tuukka.t.ruhanen@gmail.com',
@@ -11,6 +11,6 @@ setup(
                  'hosting service of namecheap.com.'),
     install_requires=['requests', 'bs4', 'lxml'],
     python_requires='>=3.6',
-    py_modules=['dynamic_dns_updater'],
+    packages=['truhanen.ddnsclient'],
     scripts=['scripts/dynamic_dns_updater'],
 )

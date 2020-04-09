@@ -1,5 +1,5 @@
 
-# dynamic-dns-updater
+# truhanen.ddnsclient
 
 A simple service for updating the dynamic IP's of a host to a dynamic DNS service. Currently supports only the DNS hosting service of [namecheap.com](https://www.namecheap.com/).
 
