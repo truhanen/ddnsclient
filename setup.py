@@ -4,6 +4,8 @@ from setuptools import setup
 setup(
     name='dynamic_dns_updater',
     version='0.1.0',
+    author='Tuukka Ruhanen',
+    author_email='tuukka.t.ruhanen@gmail.com',
     description=('Simple service for updating dynamic IP\'s of a host '
                  'to the dynamic DNS service of namecheap.com'),
     install_requires=['requests', 'bs4', 'lxml'],
