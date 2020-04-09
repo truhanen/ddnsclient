@@ -1,7 +1,7 @@
 
-# dynamic_dns_updater
+# dynamic-dns-updater
 
-A simple service for updating the dynamic IP\'s of a host to the dynamic DNS service of [namecheap.com](https://www.namecheap.com/).
+A simple service for updating the dynamic IP's of a host to a dynamic DNS service. Currently supports only the DNS hosting service of [namecheap.com](https://www.namecheap.com/).
 
 ## Installation
 
@@ -12,7 +12,7 @@ pip install --user .
 
 ## Usage
 
-Use the installed script `dynamic_dns_updater.py`,
+To start the service, use the installed script `dynamic_dns_updater.py`,
 ```
 $ dynamic_dns_updater.py --help
 usage: dynamic_dns_updater.py [-h] [-d] domain_path
