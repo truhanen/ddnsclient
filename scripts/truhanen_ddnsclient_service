@@ -7,11 +7,14 @@ from truhanen.ddnsclient import Domain, Updater
 
 
 def main():
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description='Start the DDNS client service that updates the listed\n'
+                    'domains with the current IP address every time it changes.')
     parser.add_argument(
         'domain_path', type=FileType('r'),
-        help=('The file that lists the credentials and the domains to update.\n'
-              'See the example.conf file for example.'))
+        help=('The file that lists the domains to update.\n'
+              'See README.md for example.'))
     parser.add_argument('-d', '--dry-run', action='store_true', dest='dry',
                         help='Dry-run. Don\'t really request any IP updates, only check.')
 
