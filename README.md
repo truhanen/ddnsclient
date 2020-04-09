@@ -12,26 +12,33 @@ pip install --user .
 
 ## Usage
 
-To start the service, use the installed script `dynamic_dns_updater.py`,
+To start the service, use the installed script `dynamic_dns_updater`,
 ```
-$ dynamic_dns_updater.py --help
-usage: dynamic_dns_updater.py [-h] [-d] domain_path
+$ dynamic_dns_updater --help
+usage: dynamic_dns_updater [-h] [-d] domain_path
 
 positional arguments:
   domain_path    The file that lists the credentials and the domains to update.
-                 The file must be readable by configparser.ConfigParser,
-                 and contain sections of the form
-
-                 [mydomain.com]
-                 password = mypassword
-                 subdomains = mysubdomains
-                 lastip = mylastip
-
-                 where subdomains is a comma separated list of subdomain names.
-                 The value of lastip is requested to be set when the service is
-                 interrupted with SIGINT.
+                 See the example.conf file for example.
 
 optional arguments:
   -h, --help     show this help message and exit
   -d, --dry-run  Dry-run. Don't really request any IP updates, only check.
+```
+
+Contents of `example.conf`
+```
+# Domain name as the section header
+[mydomain.com]
+# Password to the dynamic DNS service
+password = mypassword
+# Comma-separated sequence of subdomain names
+subdomains = @, subdomain1, subdomain2
+# IP to be set when the service is interrupted
+lastip = 1.1.1.1
+
+[mydomain2.org]
+password = mypassword2
+subdomains = @
+lastip = 1.1.1.1
 ```
