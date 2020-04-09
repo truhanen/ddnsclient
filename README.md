@@ -1,7 +1,7 @@
 
 # truhanen.ddnsclient
 
-A simple service for updating the dynamic IP's of a host to a dynamic DNS service. Currently supports only the DNS hosting service of [namecheap.com](https://www.namecheap.com/).
+A simple service for updating the dynamic IP's of a host to a dynamic DNS service. Currently supports only the DNS hosting service of [Namecheap](https://www.namecheap.com/).
 
 ## Installation
 
@@ -12,10 +12,10 @@ pip install --user .
 
 ## Usage
 
-To start the service, use the installed script `dynamic_dns_updater`,
+To start the service, use the installed script `truhanen_ddnsclient_service`,
 ```
-$ dynamic_dns_updater --help
-usage: dynamic_dns_updater [-h] [-d] domain_path
+$ truhanen_ddnsclient_service --help
+usage: truhanen_ddnsclient_service [-h] [-d] domain_path
 
 positional arguments:
   domain_path    The file that lists the credentials and the domains to update.

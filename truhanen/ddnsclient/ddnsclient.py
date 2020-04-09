@@ -32,9 +32,9 @@ def get_current_ip() -> str:
     return ip
 
 
-def request_namecheap_dyndns_update(*, host: str, domain: str, password: str,
+def request_namecheap_ddns_update(*, host: str, domain: str, password: str,
                                     ip: str, dry_run: bool = False):
-    # The URL of the dynamic DNS service by Namecheap
+    # The URL of the DDNS service by Namecheap
     dyndns_url = 'https://dynamicdns.park-your-domain.com/update'
 
     url = (f'{dyndns_url}'
@@ -90,7 +90,7 @@ class Domain(NamedTuple):
     def update(self, current_ip, dry_run : bool = False):
         subdomains = [s.strip() for s in self.subdomains.split(',')]
         for subdomain in subdomains:
-            request_namecheap_dyndns_update(
+            request_namecheap_ddns_update(
                 host=subdomain, domain=self.name, password=self.password,
                 ip=current_ip, dry_run=dry_run)
 

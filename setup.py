@@ -12,5 +12,5 @@ setup(
     install_requires=['requests', 'bs4', 'lxml'],
     python_requires='>=3.6',
     packages=['truhanen.ddnsclient'],
-    scripts=['scripts/dynamic_dns_updater'],
+    scripts=['scripts/truhanen_ddnsclient_service'],
 )
