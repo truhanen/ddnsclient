@@ -4,8 +4,6 @@ import logging
 import time
 import re
 from typing import NamedTuple, List
-from argparse import ArgumentParser, FileType, RawTextHelpFormatter
-from pathlib import Path
 from configparser import ConfigParser
 
 import requests
@@ -160,31 +158,3 @@ class Updater:
                                  'Trying updating again after 1 minute.')
                 time.sleep(60)
                 continue
-
-
-def main():
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
-    parser.add_argument(
-        'domain_path', type=FileType('r'),
-        help=('The file that lists the credentials and the domains to update.\n'
-              'The file must be readable by configparser.ConfigParser,\n'
-              'and contain sections of the form\n \n'
-              '[mydomain.com]\npassword = mypassword\nsubdomains = mysubdomains\n'
-              'lastip = mylastip\n \n'
-              'where subdomains is a comma separated list of subdomain names.\n'
-              'The value of lastip is requested to be set when the service is\n'
-              'interrupted with SIGINT.'))
-    parser.add_argument('-d', '--dry-run', action='store_true', dest='dry',
-                        help='Dry-run. Don\'t really request any IP updates, only check.')
-
-    args = parser.parse_args()
-    dry_run = args.dry
-    domain_path = Path(args.domain_path.name)
-
-    domains = Domain.read_from_file(domain_path)
-    updater = Updater(domains, dry_run=dry_run)
-    updater.run()
-
-
-if __name__ == '__main__':
-    main()
