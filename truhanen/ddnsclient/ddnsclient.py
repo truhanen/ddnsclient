@@ -53,7 +53,7 @@ def request_namecheap_ddns_update(*, host: str, domain: str, password: str,
             logger.error(str(error))
             raise error
 
-        errors = bs4.BeautifulSoup(response.content, 'xml').find('errors')
+        errors = bs4.BeautifulSoup(response.content, 'html.parser').find('errors')
         if errors:
             error = UpdateError(f'Update failed with error {errors}')
             logger.error(str(error))
