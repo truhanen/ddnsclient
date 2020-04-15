@@ -98,6 +98,8 @@ class Updater:
     def __init__(self, domains: List[Domain], dry_run: bool = False):
         self.domains = domains
         self.dry_run = dry_run
+        # E.g. after a failure, we shoud be a bit more verbose.
+        self._log_more_info = False
 
     def run(self):
         """Update dynamic IP's to the DNS in an infinite loop."""
@@ -106,13 +108,13 @@ class Updater:
         except KeyboardInterrupt:
             self._set_last_ip()
 
-    @staticmethod
-    def _wait_after_failure(action_name: str, exception: Exception,
+    def _wait_after_failure(self, action_name: str, exception: Exception,
                             sleep_seconds: int):
         logger.exception(
             f'{action_name} failed due to an exception. '
             f'Trying again in {sleep_seconds} seconds. '
             f'The exception: {exception}')
+        self._log_more_info = True
         time.sleep(sleep_seconds)
 
     def _run_update_loop(self):
@@ -128,7 +130,11 @@ class Updater:
             logger.debug(f'Current IP is {current_ip}')
 
             if previous_ip == current_ip:
-                logger.info('IP not changed. Checking again after 60 seconds.')
+                log_function = logger.debug
+                if self._log_more_info:
+                    log_function = logger.info
+                    self._log_more_info = False
+                log_function('IP not changed. Checking again after 60 seconds.')
                 time.sleep(60)
                 continue
 
