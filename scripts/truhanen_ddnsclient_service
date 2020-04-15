@@ -2,8 +2,14 @@
 
 from argparse import ArgumentParser, FileType, RawTextHelpFormatter
 from pathlib import Path
+import logging
 
 from truhanen.ddnsclient import Domain, Updater
+
+
+def configure_logging(level: str):
+    logging_format = '{levelname}|{asctime}|{name}|{message}'
+    logging.basicConfig(format=logging_format, level=level, style='{')
 
 
 def main():
@@ -17,8 +23,15 @@ def main():
               'See README.md for example.'))
     parser.add_argument('-d', '--dry-run', action='store_true', dest='dry',
                         help='Dry-run. Don\'t really request any IP updates, only check.')
+    parser.add_argument(
+        '-l', '--log-level', default='INFO',
+        help='The desired logging level as a name supported by the Python\'s\n'
+             'built-in logging module. Defaults to INFO.')
 
     args = parser.parse_args()
+
+    configure_logging(args.log_level)
+
     dry_run = args.dry
     domain_path = Path(args.domain_path.name)
 

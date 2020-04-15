@@ -10,8 +10,7 @@ import requests
 import bs4
 
 
-FORMAT = '%(asctime)-15s|%(name)s|%(levelname)s|%(message)s'
-logging.basicConfig(level=logging.INFO, format=FORMAT)
+# Module-level logger
 logger = logging.getLogger(__name__)
 
 
@@ -49,15 +48,11 @@ def request_namecheap_ddns_update(*, host: str, domain: str, password: str,
         response = requests.get(url)
 
         if response.status_code != 200:
-            error = UpdateError(f'Update failed with error status {response.status}')
-            logger.error(str(error))
-            raise error
+            raise UpdateError(f'Update failed with error status {response.status}')
 
         errors = bs4.BeautifulSoup(response.content, 'html.parser').find('errors')
         if errors:
-            error = UpdateError(f'Update failed with error {errors}')
-            logger.error(str(error))
-            raise error
+            raise UpdateError(f'Update failed with error {errors}')
     else:
         logger.info(f'Dry-run \'request_namecheap_dyndns_update(...)\'. '
                     'Nothing was really updated.')
@@ -111,6 +106,15 @@ class Updater:
         except KeyboardInterrupt:
             self._set_last_ip()
 
+    @staticmethod
+    def _wait_after_failure(action_name: str, exception: Exception,
+                            sleep_seconds: int):
+        logger.exception(
+            f'{action_name} failed due to an exception. '
+            f'Trying again in {sleep_seconds} seconds. '
+            f'The exception: {exception}')
+        time.sleep(sleep_seconds)
+
     def _run_update_loop(self):
         previous_ip = None
 
@@ -118,33 +122,29 @@ class Updater:
             try:
                 current_ip = get_current_ip()
             except Exception as e:
-                logger.exception(
-                    f'Checking failed due to {e}. Trying again in a minute.')
-                time.sleep(60)
+                self._wait_after_failure('IP check', e, 60)
                 continue
 
             logger.debug(f'Current IP is {current_ip}')
 
             if previous_ip == current_ip:
-                logger.debug('IP not changed. Checking again after a minute.')
+                logger.info('IP not changed. Checking again after 60 seconds.')
                 time.sleep(60)
                 continue
 
             logger.info(
-                f'IP changed from {previous_ip} to {current_ip}. Updating it to DNS.')
+                f'IP changed from {previous_ip} to {current_ip}. Updating it to the DDNS service.')
 
             try:
                 for domain in self.domains:
                     domain.update(current_ip, dry_run=self.dry_run)
             except Exception as e:
-                logger.exception(
-                    f'Updating failed due to {e}. Trying again in a minute.')
-                time.sleep(60)
+                self._wait_after_failure('DDNS update', e, 60)
                 continue
 
             previous_ip = current_ip
 
-            logger.info('Checking again after 5 minutes.')
+            logger.info('Checking again after 300 seconds.')
             time.sleep(300)
 
     def _set_last_ip(self):
@@ -154,7 +154,5 @@ class Updater:
                     domain.update_last(dry_run=self.dry_run)
                 break
             except Exception as e:
-                logger.exception(f'Updating failed due to {e}. '
-                                 'Trying updating again after 1 minute.')
-                time.sleep(60)
+                self._wait_after_failure('DDNS update', e, 60)
                 continue
